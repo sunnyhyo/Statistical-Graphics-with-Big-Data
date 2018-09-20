@@ -1,0 +1,68 @@
+---
+title: "빅데이터 그래픽스 HW1"
+author: "박효선 1585063"
+date: "2018년 9월 16일"
+output: pdf_document
+---
+
+
+## mtcars
+
+1) mtcars 자료에 대한 설명으로부터 변수들의 설명을 찾아보시오
+```{r }
+#1)
+?mtcars
+```
+
+2) mtcars 자료의 개수와 변수의 개수를 구하시오.
+```{r}
+#2) 
+dim(mtcars)
+```
+
+3) write.csv의 기본 option들을 이용하여 mtcars.csv 파일을 생성하시오.
+```{r}
+#3)
+write.csv(mtcars, "mtcars.csv")
+```
+
+4) 생성한 mtcars.csv 파일을 읽어들여 mtcars.read라는 이름의 object를 만드시오.
+```{r}
+#4)
+mtcars.read<- read.csv("mtcars.csv")
+```
+
+
+5) mtcars와 mtcars.read의 처음과 끝 6줄씩을 비교하고 차이가 있다면 어떤 차이가 있는지 기술하시오.
+```{r}
+#5) 
+head(mtcars); tail(mtcars)
+head(mtcars.read); tail(mtcars.read)
+dim(mtcars); dim(mtcars.read)
+```
+
+6) transmission이 automatic인지 아닌지를 TRUE/FALSE로 나타내는 isAuto 변수를 만들어 mtcars.read에 추가하시오.
+```{r}
+#6) 
+mtcars.read$isAuto <- ifelse(mtcars.read$am == 'automatic', TRUE, FALSE)
+```
+
+7) mpg값이 평균보다 크거나 같으면 100, 작으면 0의 값을 갖는 새로운 변수 mpgR을 만들어 mtcars.read에 추가하시오.
+```{r}
+#7)
+mtcars.read$mpgR <- ifelse(mtcars.read$mpg >= mean(mtcars.read$mpg), 100, 0)
+```
+
+8) mtcars 자료의 모든 변수들의 특성을 살펴보고 특성에 맞게 정리하시오. 
+(정수형 변수인 경우는 범주형변수로 간주하여 정리할 것)
+```{r}
+#8)
+str(mtcars.read)
+summary(mtcars.read)
+```
+* 연속형 변수
+mpg, drat, wt, qsec, mpgR
+* 범주형 변수
+x, cyl, hp, vs, am, gear, carb
+* 논리형 변수
+isAuto
