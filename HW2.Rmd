@@ -1,0 +1,97 @@
+---
+title: "HW2"
+author: "박효선 1585063"
+date: "2018년 9월 30일"
+output:
+  html_document:
+    df_print: paged
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(gridExtra)
+setwd("C:/Users/HS/Documents/GitHub/Statistical-Graphics-with-Big-Data")
+Height <- read.csv( "C:/Users/HS/Documents/GitHub/Statistical-Graphics-with-Big-Data/data/Heights.csv")
+
+```
+```{r}
+summary(Height)
+
+```
+
+
+##1번
+###연봉, 키, 성별, 교육정도, 나이, 인종 변수 각각의 분포 
+```{r warning=FALSE}
+ggplot(Height, aes(earn))+geom_histogram(fill='gray')+geom_freqpoly(color='red')+xlim(0,2e+05)+ggtitle( "연봉의 분포") #연봉의 분포
+ggplot(Height, aes(height))+geom_histogram(fill='gray')+geom_freqpoly(color='red')+xlim(55,80)+ggtitle("키의 분포") #키의 분포
+ggplot(Height, aes(sex))+geom_bar()+ggtitle("성별의 분포") #성별의 분포
+ggplot(Height, aes(ed))+geom_bar()+ggtitle("교육정도의 분포") #교육정도의 분
+ggplot(Height, aes(age))+geom_histogram(fill='gray')+geom_freqpoly(color='red')+xlim(0,120)+ggtitle("나이의 분포") #나이의 분포
+ggplot(Height, aes(race))+geom_bar()+ggtitle("인종의 분포") #인종의 분포
+
+```
+
+
+##2번 
+###성별에 따라 연봉의 차이가 있는가?
+성별에 따라 연봉의 차이가 있다. 대체로 여성보다 남성의 소득이 높은 곳에 분포한다..
+
+```{r warning=FALSE}
+ggplot(Height, aes(earn, color=sex))+geom_density()#+facet_wrap(~sex)
+ggplot(Height, aes(sex,earn))+geom_jitter(alpha=0.3)+geom_boxplot()
+
+```
+
+##3번 
+###인종별로 연봉의 차이가 있는가?
+연봉 0~50000 범위에서는 인종의 차이가 크게 두드러지지 않는다.
+하지만 연봉 50000 이상의 고소득자의 연봉을 살펴보면 인종의 차이가 있다. 고소득자의 대부분은 white이다. 
+
+```{r warning=FALSE}
+
+ggplot(Height, aes(earn, color=race))+geom_density()#+facet_wrap(~race)
+ggplot(Height, aes(race,earn))+geom_jitter(alpha=0.2, color='blue')+geom_boxplot(alpha=0.9)
+
+```
+
+##4번
+###교육받은 정도와 연봉이 상관성이 있는가?
+상관성이 있다. 교육받은 연도가 길수록 연봉이 높다.
+
+```{r warning=FALSE}
+Height$ed<-as.factor(Height$ed)
+ggplot(Height, aes(ed, earn))+geom_jitter( width=0.5, alpha=0.4, color='red')+geom_boxplot(alpha=0.9)
+```
+
+
+
+##5번
+###연봉과 키가 상관성이 있는가?
+회귀직선을 그려본 결과 연봉과 키는 양의 상관관계가 있다. 
+
+```{r warning= FALSE}
+ggplot(Height, aes( height, earn))+geom_point()+geom_smooth(method='lm')
+
+```
+
+
+##6번 
+###인종별로 성별에 따라 연봉차이가 있는가?
+모든 인종에서 성별에 따른 연봉차이가 있다.
+```{r warning=FALSE}
+ggplot(Height, aes( earn, color=sex))+geom_density()+facet_wrap(~race)
+```
+
+##7번 
+###조사된 자료에서 인종별로 나이의 분포가 같은가?
+
+다르다. 
+대체로 hispanic 은 다른 인종에 비해 나이가 적다. 다른연령과 다르게 50대의 비율이 낮고, 60대의 비율이 높다. 
+white 는 다른 연령과 달리 75세 이상의 인구가 많다..
+
+```{r warning=FALSE}
+ggplot(Height, aes(age, color=race))+geom_density()+xlim(0,120)
+ggplot(Height, aes(race,age))+geom_jitter(alpha=0.2, color='blue')+geom_boxplot(alpha=0.9)
+```
