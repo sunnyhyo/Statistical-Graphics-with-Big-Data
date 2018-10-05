@@ -81,7 +81,7 @@ mod_coef <- coef(lm(log10(price)~log10(carat), data = diamonds))  #lmì˜ coef ë§
 #(Intercept) log10(carat) 
 #3.669207     1.675817 
 ggplot(diamonds, aes(log10(carat), log10(price))) + 
-  geom_bin2d() + 
+geom_bin2d() + 
   geom_abline(intercept = mod_coef[1], slope = mod_coef[2], color='white', size=1)+
   facet_wrap(~cut, nrow = 1)  
 
