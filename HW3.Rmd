@@ -8,16 +8,21 @@ output: html_document
 ```{r }
 library(ggplot2)
 library(dplyr)
-summary(mpg)
+
 glimpse(mpg)
 ```
 
 
 #1. 
 ##mpg 자료에서 drv 별로 cty와 hwy의 분포를 알아보려고 한다. 이를 위한 다양한 그림을 그리고 설명하시오.
+- cty 가 높을 수록 hwy 도 높다.
+-  drv f가 다른 그룹보다 cty, hwy 가 높다.
+-  drv 4 와 r 의 cty범위는 10 과 20 사이로 비슷하지만, hwy 는 r 이 대체로 더 높다.
+
 ```{r}
-mpg %>% ggplot(aes(cty, hwy))+geom_point(aes(color=drv))
-mpg %>% ggplot(aes(cty, hwy))+geom_bin2d(aes(fill=drv))
+mpg %>% ggplot(aes(cty, hwy))+geom_point(aes(color=drv))+xlim(0, 40)+ylim(0,50)
+mpg %>% ggplot(aes(cty, hwy))+geom_jitter(aes(color=drv))+xlim(0, 40)+ylim(0,50)
+mpg %>% ggplot(aes(cty, hwy))+geom_bin2d(aes(fill=drv))+xlim(0, 40)+ylim(0,50)
 ```
 
 #2. 
@@ -28,22 +33,34 @@ volk
 ```
 #3. 
 ##volk 자료에서 model 별 cty와 hwy의 관계를 비교하려고 한다. 이를 위한 그림을 그리고 설명하시오.
+- cty 가 높을수록 hwy 도 높다. 
+- volk 자료는 대부분 cty 범위 (15, 35) , hwy 범위 (20, 45) 에 있다.
+- 그 중 new beetle 과 jetta 에 cty과 hwy가 높은 이상점이 있다. 
 ```{r}
-volk %>% ggplot(aes(cty, hwy))+geom_point(aes(color=model))
+volk %>% ggplot(aes(cty, hwy))+geom_jitter(aes(color=model))+xlim(10, 40)+ylim(10,50)
+volk %>% ggplot(aes(cty, hwy))+geom_jitter(aes(color=model))+facet_wrap(~model)
 ```
 
 #4. 
 ##volk 자료에서 연도별 cty와 hwy의 관계를 비교하려고 한다. 이를 위한 그림을 그리고 설명하시오.
+- volk 자료는 1999년도와 2008년만 있다.
+- 두 연도 모두 cty 에 비해 hwy 가 높다. cty 가 높을 때 hwy 도 높다.
+
 ```{r}
 table(volk$year)
-volk %>% ggplot(aes(cty, hwy, color=factor(year)))+geom_point()
+volk %>% ggplot(aes(cty, hwy, color=factor(year)))+geom_jitter()+xlim(15, 40)+ylim(15,50)
+volk %>% ggplot(aes(cty, hwy, color=factor(year)))+geom_point()+geom_line()+xlim(15, 40)+ylim(15,50)
+
 ```
 
 #5. 
 ##class가 “suv”인 차들의 hwy를 manufacture 별로 비교하려고 한다. 이를 위한 그림을 그리고 설명하시오. 
+- subaru 가 다른 모델에 비해 hwy 가 높다.
+- jeep 의 hwy 범위가 다른모델에 비해 넓다...
+
 ```{r}
-mpg %>% filter(class=="suv") %>% 
-  ggplot(aes(manufacturer, hwy))+geom_jitter()+ geom_boxplot(alpha=0.3) 
+mpg %>% filter(class=="suv") %>%
+  ggplot(aes(manufacturer, hwy))+geom_jitter(color= 'red', alpha=0.5)+ geom_boxplot(alpha=0.3) 
 ```
 
 #6. 
