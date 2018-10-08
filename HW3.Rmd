@@ -46,6 +46,7 @@ volk %>% ggplot(aes(cty, hwy))+geom_jitter(aes(color=model))+facet_wrap(~model)
 - volk 자료는 1999년도와 2008년만 있다.
 - 두 연도 모두 cty 에 비해 hwy 가 높다. cty 가 높을 때 hwy 도 높다.
 
+
 ```{r}
 table(volk$year)
 volk %>% ggplot(aes(cty, hwy, color=factor(year)))+geom_jitter()+xlim(15, 40)+ylim(15,50)
