@@ -71,7 +71,7 @@ ggplot(mpg, aes(class, fill = drv)) + geom_bar() +
 # contour
 # eruptions 와 wating, 어디서 많이 일어나니?
 
-ggplot(faithfuld, aes(eruptions, waiting)) + geom_contour(aes(z=density, color=..level..)) #내부함수
+ggplot(faithfuld, aes(eruptions, waiting)) %>% + geom_contour(aes(z=density, color=..level..)) #내부함수
 ggplot(faithfuld, aes(eruptions, waiting)) + geom_contour(aes(z=density))
 
 ggplot(faithfuld, aes(eruptions, waiting)) + geom_raster()

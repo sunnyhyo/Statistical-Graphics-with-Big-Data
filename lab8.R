@@ -1,132 +1,197 @@
-getwd()
 library(tidyverse)
 
-#미국 실업률 데이터 
-ggplot(economics, aes(date, unemploy))+geom_line()
+diamonds
 
-#67년 이후의 데이터만 뽑아서, 두 dataset 의 날짜를 맞추기 위함  
-presidential <- subset(presidential, start > economics$date[1])
+ggplot(diamonds, aes(depth)) + geom_histogram()
+range(diamonds$depth)
+#범위를 보니 43, 79
+#짤리는 범위가 있다...
+ggplot(diamonds, aes(depth)) + 
+  geom_histogram() +xlim(55, 70)
+ggplot(diamonds, aes(depth)) + 
+  geom_histogram(binwidth = 0.1) +xlim(55, 70)
+#예쁜 종모양 !!
+?diamonds
+#total depth percentage = z / mean(x, y) = 2 * z / (x + y) (43–79)
+ggplot(diamonds, aes(depth)) +
+  geom_histogram()+xlab(quote(paste("depth=2*",frac(z,(x+y))))) 
+# xlab을 예쁘게 쓰고 싶어 integral 
+# quote 인용해라
+# paste A, B 하면 
+paste("A","B")  #space 띄우고 두 문자열 합치기
+# frac 함수는 ???????
+#depth = 2* z/ (x+y)
 
-#미국대통령 정당 바뀔때마다 색깔 다르게 하기 
-ggplot(economics) + 
-    geom_line(aes(date, unemploy)) +   # x,y 축 지정
-    geom_rect(   #직사각형 만들기, x범위 지정해주기. 
-    aes(xmin = start, xmax = end, fill = party), #fill party 에 따라서 변수색 다르게 칠해주기
-    ymin = -Inf,  ymax = Inf, alpha = 0.2,  #infinity
-    data = presidential
-    #끝까지 채워주기. aes(ymin=-Inf)하면 변수로 인식하기 때문에 aes() 바깥에서 지정
-  ) +
-  geom_vline( #vertical line : x축에 대한 정보를 지정해줘야함
-    aes(xintercept = as.numeric(start)),  
-    data= presidential,  #start 변수는 presidential 데이터셋안에 있어서 데이터 다시 잡아줌
-    color = 'gray50', alpha = 0.5  
-    #아까 그려진 것 까지 선이 그려짐
-  ) + 
-  geom_text(
-    aes(x = start, y = 2500, label = name), 
-    data = presidential, 
-    size = 3, vjust = 0, hjust = 0, nudge_x = 50  #just글씨 위아래, 좌우정렬 
-    #0 means left-justified
-    #1 means right-justified
-    #x 50떨어진 곳에 글쓰기
-  ) + 
-  scale_fill_manual( values= c('blue', 'red'))
-  #democratic 할당된 색깔 바꿔주기
-  #fill 로 party 채워져있음. fill 색깔 조정하는 함수. 순서대로 넣어준다. 
-  
-#핸드아웃과 다른 점, x, y축의 이름
-#우리가 geom을 한 순서대로 그려진다. 
+#컷별로 depth 다른것을 보고 싶다
+#1. 
+ggplot(diamonds, aes(depth)) +
+  geom_freqpoly(aes(colour = cut), binwidth = 0.1, na.rm = TRUE) +
+  xlim(58, 68) +   #na.rm =TRUE 뜻? missing 자료는 빼라
+  theme(legend.position = "none") #legend.position ="none" 뜻?
+#2.
+ggplot(diamonds, aes(depth,colour = cut)) +  #legend 여기에 있다...
+  geom_freqpoly(binwidth = 0.1, na.rm = TRUE)
+#color : 선, 점의 색깔이 바뀜
+#fill : 영역의 색깔이 바뀜
 
+ggplot(diamonds, aes(depth,fill=cut)) + geom_density( binwidth=0.1) +
+  xlim(58, 68)
+ggplot(diamonds, aes(depth)) + geom_density(aes(fill=cut), binwidth=0.1) +
+  xlim(58, 68)
+# y축은 density : 각 곡선의 면적이 1이 되도록 색칠
+# 문제는 가려진 애들 알 수 없다. 투명하게 그려보자
+ggplot(diamonds, aes(depth)) + geom_density(aes(fill=cut), binwidth=0.1, alpha=0.3) +
+  xlim(58, 68)
+#fill, color 까지 다르게 ???  aplha 는 fill에만 적용된다
+ggplot(diamonds, aes(depth)) + geom_density(aes(fill=cut, color= cut), binwidth=0.1, alpha=0.3) +
+  xlim(58, 68)
 
+#왜 density 밑면의 넓이를 맞춰주나요?
+#count 로 세어진 것은 분포의 비교를 할 수 없다. 
+#count 가 워낙 작기 때문에 그림이 바닥에 깔린다... 
 
+table(diamonds$cut)
+#각각 population 차이 까지 함께 고려하자
 
-############################
-#annotate()
+ggplot(diamonds, aes(depth)) +
+  geom_histogram(aes(fill = cut))+xlim(58, 68)
+#전체 자료를 bin 나눈다. 각 bin 에서 색칠을 idel 몇개인지 세서 칠하고 premiun 세서 그만큼 색칠한다..
+#각각의 자료를 stak으로 쌓는 것이 기본옵션임                 
+ggplot(diamonds, aes(depth)) +
+  geom_histogram(aes(fill = cut), position = "fill")+xlim(58, 68)
+#position = "fill" 다 칠해버려라...
+#모지:? 전체 fill을 퍼센트로 채워줘라!!! 
+#컷별로 분포를 알 수 있다. histogram 보다 
 
-
-yrng <- range(economics$unemploy)  #y 변수의 범위
-xrng <- range(economics$date)      #x 변수의 범위
-caption <- paste(strwrap("Unemployment rates in the US have
-                         varied a lot over the years", 40), collapse = "\n") #enter와 같다 줄바꾸
-
-A<-strwrap("Unemployment rates in the US have
-                         varied a lot over the years", 40)
-paste(A, collapse = '\n') #두개의 문장을 \n 으로 이어라
-print(paste(A, collapse = '\n')) #print문 : 1번에 1가지만 가능, 결과 출력한 뒤 개행(줄바꿈)이 일어남
-cat(paste(A, collapse = '\n'))   #cat문 : 여러개 출력 가능, 복잡한 형태 출력 불가. 확장 문자열을 해석된 그대로 문자열 출력하기 
-
-
-
-############################
-#diamonds
-
-ggplot(diamonds, aes(carat, price)) + geom_point()
-ggplot(diamonds, aes(carat, price)) + geom_point(alpha=0.2)
-ggplot(diamonds, aes(log10(carat), log10(price))) + geom_point()
-ggplot(diamonds, aes(log10(carat), log10(price))) + geom_point(alpha=0.2)
-#선들이 보이는 이유? 소비자가 선호하는 n캐럿 숫자 맞추려구 ~ 
-
-ggplot(diamonds, aes(log10(carat), log10(price))) + 
-         geom_bin2d() #2차원 분포로 보여줘!
-         #연한 쪽 많고, 진한쪽 count 적다
-ggplot(diamonds, aes(log10(carat), log10(price))) + 
-  geom_bin2d() + facet_wrap(~cut, nrow = 1)  
-  #컷 별로 알아보기 위해 facet 사용. 나란히 비교하기 위해 1줄로 정렬
-
-#음...price의 상한이 이상한걸? 일정 상한까지 자료가 있나보다. 확인 필요함
+#position ="identity" 
+#바 차트를 그릴 떄 자료가 categorical 자료가 아닐 떄 . 그린다.  범주형 자료가 아닐 때 바로 그려버려라 
+#우리가 넣어준 그대로 써라.
 
 
-#보조선 추가하기
-mod_coef <- coef(lm(log10(price)~log10(carat), data = diamonds))  #lm의 coef 만 추출해서 저장
-#(Intercept) log10(carat) 
-#3.669207     1.675817 
-ggplot(diamonds, aes(log10(carat), log10(price))) + 
-geom_bin2d() + 
-  geom_abline(intercept = mod_coef[1], slope = mod_coef[2], color='white', size=1)+
-  facet_wrap(~cut, nrow = 1)  
+
+ggplot(diamonds, aes(depth)) +
+  geom_histogram(aes(fill = cut), 
+                 binwidth = 0.1, position = "fill",
+                 na.rm = TRUE) +
+  xlim(58, 68) +
+  theme(legend.position = "none")
+
+ggplot(diamonds, aes(depth)) +
+  geom_density(na.rm = TRUE) +
+  xlim(58, 68) +
+  theme(legend.position = "none")
 
 
-#그룹별로 mapping 하기
-data(Oxboys, package = 'nlme')
-head(Oxboys)
-#grouped data  class 를 보면 26명의 소년에 대한 자료
-#각 소년마다 9 번 관측하고 , 측정 할 때 나이, 키 저장되어있다!
-#궁금한거 : 각 소년마다 얼마나 자랐는지 알아보자 
-#profile plot 그리기 !
+ggplot(diamonds, aes(depth, fill = cut, colour = cut)) +
+  geom_density(alpha = 0.2, na.rm = TRUE) +
+  xlim(58, 68) +
+  theme(legend.position = "none")
 
-
-ggplot(Oxboys, aes(age, height, group= Subject)) +
-  geom_point() + geom_line( )   #각 그룹별로 따로따로 그림을 그려준다. 
-#색깔 다르게 하고 싶으면? color= Subject?!?!?
-ggplot(Oxboys, aes(age, height)) +
-  geom_point() + geom_line()
-
-ggplot(Oxboys, aes(age, height, group = Subject)) +  #aeS(group) 하위의 모든 그림에 group 정용된다. 
-  geom_line()+
-  geom_smooth(method = 'lm', size = 2, se=FALSE)
-  #자료에 linear fitting  
-  #힝 근데 나는 전체적인 linear line 을 보고 싶다구...
-ggplot(Oxboys, aes(age, height)) +  #aeS(group) 하위의 모든 그림에 group 정용된다. 
-  geom_line(aes(group = Subject ))+  #FALSE 하면 색깔 안나오
-  geom_smooth( method = 'lm', size = 2, se=FALSE)
-
-
-#상자그림 위에 Subject 별 profile line 그리기
-ggplot(Oxboys, aes(Occasion, height))+ 
+ggplot(diamonds, aes(clarity, depth)) +
   geom_boxplot()
-ggplot(Oxboys, aes(Occasion, height))+ 
-  geom_boxplot()+
-  geom_line(colour = "#3366FF", alpha = 0.5)
-
-#occasion 이 categorical 변수로 인식된다 ㅠㅠ그 자체가 그룹이 됨
-
-ggplot(Oxboys, aes(Occasion, height))+ 
-  geom_boxplot()+
-  geom_line(aes(group= Subject), colour = "#3366FF", alpha = 0.5)
 
 
-ggplot(Oxboys, aes(age, height)) + geom_boxplot()
-   # x 변수를 그룹으로 인식하고 boxplot 그림
-   # x 변수가 연속형이면 warning 알려주고 하나의 그룹으로 생각하기
+
+######################
+ggplot(diamonds, aes(carat, depth)) + 
+  geom_boxplot(aes(group = cut_width(carat, 0.1)))
+###????
+diamonds$AA<- cut_width(diamonds$carat, 0.1)
+#다이아몬드 캐럿을 0.1 단위로 짤라서 붙여라
+table(diamonds$AA)
+
+
+ggplot(diamonds, aes(AA, depth)) + geom_boxplot()
+#원래 범주였던 애들은 group 지정 안해줘도 ㅇㅋ
+ggplot(diamonds, aes(carat, depth)) + geom_histogram()
+#ERROR 뜬다. 연속형- 연속형이라서 그ㅐㄹ
+ggplot(diamonds, aes(carat, depth)) + geom_boxplot(aes(group = cut_width(carat, 0.1)))
+# 범주형에 들어갈 부분에 연속형이 들어가소 문제가 생긴다.
+#group 을 씌워주면서 바꿔줘라
+
+
+#######################
+df<- data.frame(x= rnorm(2000), y = rnorm(2000))
+ggplot(df, aes(x,y))+geom_point()
+ggplot(df, aes(x,y))+geom_point(shape="A")
+ggplot(df, aes(x,y))+geom_point(shape=1)
+ggplot(df, aes(x,y))+geom_point(shape=".")
+ggplot(df, aes(x,y))+geom_point(size=3, alpha= 0.3)
+
+#independent 이기 때문에 전혀 관계 없어 보인다. 
+#어느정도로 그려야 겹쳐진 것을 볼 수 있을 까???
+
+'''
+jittering 이 유용한 것?
+  수십개가 겹쳐져있을떄 
+이 예시에서는 이미 수십개가 겹쳐져 있기 때문에 소용없을 수 잇따
+오히려 aplha 옵션을 조정해서 농도를 조정해하!
+   아니면 점 모양을 바꿔보시던가.!'''
+
+ggplot(df, aes(x,y))+geom_bin2d()
+ggplot(df, aes(x,y))+geom_bin2d(bins= 10)
+#카운트가 낮은 것은 진하게, 낮은 것은 높게 하고 싶엉
+#디폴트갖이 어둡 -> 밝은 이유는? 경계가 불명확할까바
+ggplot(df, aes(x,y))+geom_bin2d() + 
+  scale_fill_gradient(low='skyblue', high= 'black')
+#값 낮음 -> 높음, 흰색-> 어둡
+#절대 끝까지는 안감!!!!!
+
+#다양하게 원하는 형태의 색깔을 그릴ㄹ 수 있엉!!!!
+
+
+####################
+ggplot(df, aes(x,y))+geom_hex()
+#육각형 그림! 앞에서 네모난 것보다는 스무스하게 그릴 수 가 있지.
+#점을 크게 찍어놓은 것 만 같구만~ 영역을 지정하고 그 안에 들어가는 bin 수 를 센다능.
+
+
+
+##############
+#상자그림 그릴 때 조심해야할것은? 
+ggplot(, aes())
+
+
+#중앙값은 비슷하고 ㄲ리가 비슷비슷
+#똑같은 상자를 그렸지만, 상자그림을 그릴 때 만들었던 데이터 자료 수 가 다르다
+#그림 자체 수로 비료할 수 있기 때문에 ㅜㅜ 조심해야한다
+#이럴 때는 점을 같이 찍어주는 것이 좋다. 
+
+
+#########################
+#각 color 별로 price 다른 것은 몰까?!?!!??!?!?!?!?!?
+#원 자료만 가지고 있는데 평균을 계산해서 나타내주고 싶어
+
+summary(ggplot(diamonds, aes(color)) + geom_bar()  )
+#원래 범주 자료 하나만 널던가..
+                      #cartegorical / continu
+#count 를 각 bar 별로 나타낸다. 
+#summary 해서 보면 stat_count 가 기본 값이다. 
+#bin 에 대한 summary 를 보여준다구 
+
+ggplot(diamonds, aes(color, price)) + 
+  geom_bar(stat="summary_bin", fun.y=mean)
+#price를 color 별로 나눠서 평균을 내고 싶다.
+#y 변수에 대해서 stat- bin을 보여주시오 
+# bar차트를 그리는데 y (color) 별로 평균을 그려내!
+ggplot(diamonds, aes(color, price)) + 
+  geom_bar(stat="summary_bin", fun.y=max)
+
+#####################
+
+#평균적으로 어디가 가장 높은지 알고 싶다
+
+ggplot(diamonds, aes(color, depth, z= price))+
+  geom_raster(binwidth= 1, stat= "summary_2d", )
+
+
+
+
+
+
+
+
+
+
 
 
