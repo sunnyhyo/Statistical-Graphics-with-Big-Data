@@ -51,9 +51,9 @@ ggplot(df2, aes(x,y)) + geom_text(aes(label=FACE, fontface=FA$FACE))
 df3<- data.frame(x=c(1,1,2,2,1.5), y=c(1,2,1,2,1.5), text=c('bottom-left','bottom-right','top-left','top-right','center'))
 
 ggplot(df3, aes(x,y)) + geom_text(aes(label=text))                    #글씨 바깥에 딱 맞춰져있음
-ggplot(df3, aes(x,y)) + geom_text(aes(label=text), hjust='inward')    #글씨 안쪽으로 들어오게
-ggplot(df3, aes(x,y)) + geom_text(aes(label=text), vjust='inward')
-ggplot(df3, aes(x,y)) + geom_text(aes(label=text), hjust='inward', vjust='inward')
+ggplot(df3, aes(x,y)) + geom_text(aes(label=text), hjust="inward", angle=45) +geom_point(color="red")   #글씨 안쪽으로 들어오게
+ggplot(df3, aes(x,y)) + geom_text(aes(label=text), vjust=0) +geom_point(color="red")
+ggplot(df3, aes(x,y)) + geom_text(aes(label=text), hjust='inward', vjust='inward')+geom_point(color="red")
 ggplot(df3, aes(x,y)) + geom_text(aes(label=text), hjust='left')  # 점-글씨
 ggplot(df3, aes(x,y)) + geom_text(aes(label=text), hjust='right') # 글씨- 점
 동
