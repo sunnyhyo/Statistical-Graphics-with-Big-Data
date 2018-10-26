@@ -157,7 +157,9 @@ ggplot(volk, aes(cty, hwy)) +
 subset()
 data(economics)
 
-
+##################
+#괴랄1
+DF <- data.frame(cty=c(10,30), hwy=c(20,40), LABEL= c("peak1", "peak2"))
 ggplot(mpg, aes(cty, hwy)) +geom_point(aes(color= drv, shape=drv), show.legend = FALSE)+
   geom_smooth(aes(color=drv))
 ggplot(mpg, aes(cty, hwy)) +geom_point(aes(color= drv))+
@@ -168,7 +170,6 @@ ggplot(mpg, aes(cty, hwy)) +geom_point(aes(color= drv))+
   annotate("rect", xmin=10 , xmax=15, ymin=10, ymax=30, alpha = 0.2, fill = "skyblue") +
   geom_label(data=DF , aes(label= LABEL))
 geom_smooth(method = )
-DF <- data.frame(cty=c(10,30), hwy=c(20,40), LABEL= c("peak1", "peak2"))
 ?geom_label()
 ?geom_abline(slope, intercept)
 
@@ -184,12 +185,22 @@ presidential$start[1]
 
 ggplot(volk, aes(cty, hwy, color = model)) + geom_smooth()
 
+########################################################################################
+#matrix 안에는 같은 자료형태가 들어가야한다. 
+#같은 원소의 위치에 있는 것끼리 연산
+#%*% 연산자
+
 A<-matrix(c(1,0,1,2,3,5,1,4,6),ncol=3)
-1<-1:3
+x<-1:3
+dim(x)<-c(3,1)
+dim(x)<-c(1,3)
+x
+#x는 vector 
 A%*%x  #3x1
 x%*%A  #1x3
 x%*%A%*%x  #1x1
 A%*%x%*%A  #오류
+
 z<-1:24
 class(z) 
 dim(z) <-c(2,4,3)
@@ -215,7 +226,16 @@ C<-array(6:1,dim=c(3,2))
 A+B
 A%*%t(B)
 ?mode
+###################
+X1 <- 1:3
+X2<- c("a","b","c")
+b6<- data.frame(x1=X1, x2=X2)
+b6
+mode(b6)  #list가 최종적인 형태. . list 에서 사용하는 방식 쓸 수 있다. 
+class(b6)
 
+#mode()  #자료의 저장형태 좀 더 베이스에 있는 것을 알려준다??? 
+#class() #개체의 저장형ㅌ 
 
 X1<-1:3
 X2<-c("A","B","C")
@@ -244,7 +264,7 @@ Lst[5] <-list(A="hyosun")
 Lst[[5]]<-list(A="hyosun")
 
 Lst$jiin<- c("hi", "hello")
-
+############################
 #list
 #lapply(list, function)
 
@@ -258,24 +278,13 @@ lapply(list, length)
 lapply(list, mean)
 lapply(list, is.numeric)
 
+###########################
+#tapply  #범주별로 통계량을 계산하기 이한 함수
+#tapply(x, index, function)   
+#    x를 index 에 대해 function 적용
+#    x와 index는 길이가 같아야한다. 
 
 
-################
-x<-c(-5:5,NA)
-x
-x+1
-(x+1)[!is.na(x)]
-(x+1)[x>0]
-(x+1)[!is.na(x)| x>0]
-rep(c(1,2,2,1),times=4) #1221 1221 1221 1221
-rep(c(1,2,2,1),each=4) #1111 2222 2222 1111
-rep(c(1:4),c(1:4)) #1 22 333 4444
-
-c("x","y")[rep(c(1,2,2,1),times=4)]
-
-
-####################
-#tapply
 ?tapply
 
 income<-c(60,59,20,49,60,39,59,48,74,28)
@@ -285,9 +294,31 @@ tapply(income,statef,mean)
 tapply(income,statef,sd)
 tapply(iris$Sepal.Length, iris$Species,mean)
 
-tapply(x, index, function)
-#    x를 index 에 대해 function 적용
 
+
+
+################
+#인덱싱
+x<-c(-5:5,NA)
+x
+x[!is.na(x)]
+x+1
+(x+1)[!is.na(x)]
+(x+1)[x>0]
+(x+1)[!is.na(x)| x>0]
+rep(c(1,2,2,1),times=4) #1221 1221 1221 1221
+rep(c(1,2,2,1),each=4) #1111 2222 2222 1111
+rep(c(1:4),c(1:4)) #1 22 333 4444
+
+c("x","y")[rep(c(1,2,2,1),times=4)] #1221 1221 1221 1221
+#길이가 두개인 벡터를 반복한다.     #XYYX XYYX XYYX XYYX
+
+iris[c(1,5,45),"Species"]
+iris$Species[c(1,5,45)]
+
+
+
+################################################################################
 data(Oxboys, package = "nlme")
 library(tidyverse)
 ###########
@@ -320,8 +351,8 @@ ggplot(df, aes(x,y, color=color))+ geom_point(size=5) +geom_line(aes(group=1),si
 small<- faithfuld[seq(1, nrow(faithfuld),by=10),]
 ggplot(small, aes(eruptions, waiting)) + geom_point(aes(size = density), alpha=1/3)
 ggplot(small, aes(eruptions, waiting)) + geom_point(aes(size = density), alpha=1/3)+
-  scale_size_area()
-
+  scale_size_area(max_size=6)
+?scale_size_area()
 ggplot(diamonds, aes(price, color= cut))+
   geom_freqpoly(binwidth=500)
 ggplot(diamonds, aes(price, color= cut))+
@@ -333,16 +364,16 @@ ggplot(diamonds, aes(price, color= cut))+
 
 
 
-ggplot(diamonds, aes(price))+ 
+g1<-ggplot(diamonds, aes(price))+ 
   geom_histogram(binwidth=300)
-ggplot(diamonds, aes(price))+ 
+g2<-ggplot(diamonds, aes(price))+ 
   geom_histogram(binwidth=300, aes(y=..density..))
-ggplot(diamonds, aes(price))+ 
-  geom_histogram(binwidth=300, stat="density")
-ggplot(diamonds, aes(price))+ 
+g3<-ggplot(diamonds, aes(price))+ 
+  geom_histogram(binwidth=500, stat="density")
+g4<-ggplot(diamonds, aes(price))+ 
   stat_density(geom="bar", binwidth=300)
-
-
+library(gridExtra)
+grid.arrange(g1,g2,g3,g4)
 #############
 df <- data.frame(x=1, y=1:3, z=letters[1:3])
 ggplot(df, aes(y,y)) + 
@@ -367,11 +398,17 @@ ggplot(mpg, aes(displ, hwy)) +
   scale_size_continuous(name="HOHO", guide="none")
 
 ggplot(diamonds, aes(color, price)) + 
-  geom_bar()
+  geom_bar()     #오류
 ggplot(diamonds, aes(color, price)) + 
   geom_bar(stat="identity")
 ggplot(diamonds, aes(color, price)) + 
   geom_bar(stat="summary_bin", fun.y=mean)
+
+ggplot(diamonds, aes(color)) + 
+  geom_bar()
+ggplot(diamonds, aes(price)) + 
+  geom_area(stat="bin")+ geom_freqpoly(color="red")
+
 
 
 ggplot(mpg, aes(displ, hwy))+
@@ -382,6 +419,7 @@ paste(1:7,"km", sep='')
 paste0(1:7,"km")
 c(1:7)
 ###############################################################################################
+#괴랄2
 dflabel<-data.frame(displ=c(2.5,2,6),hwy=c(40,10,30), labels=c("4", "r", "r"))
 ggplot(mpg, aes(displ,hwy))+
   #geom_*
@@ -393,7 +431,7 @@ ggplot(mpg, aes(displ,hwy))+
   scale_y_continuous(name=quote(paste("HIGHWAY=2*",frac(x, (x+z)))))+
   scale_color_discrete(name="DRV")+  #, guide="none" 하면 그 옵션만 안보임
   scale_shape_manual(name="DRV", values=c(1,2,3))+
-  scale_size_continuous(name="DRV", breaks = c(10,20,30), labels=c("십", "이십","삼십"))+
+  scale_size_continuous(name="CTY", breaks = c(10,20,30), labels=c("십", "이십","삼십"))+
   ggtitle("HWHWH")+
   #theme
   theme(legend.position = "bottom")+
@@ -406,4 +444,68 @@ ggplot(mpg, aes(displ,hwy))+
   
 
 
+#######################
+ggplot(mpg, aes(hwy))+ geom_freqpoly()
+ggplot(mpg, aes(hwy,  y=..density..))+ geom_freqpoly()
 
+ggplot(economics, aes(date, uempmed)) + 
+  geom_point()
+ggplot(economics, aes(date, uempmed)) +geom_area() + geom_line(color="red")
+#area() x축에 두가지
+df<- data.frame(x=c(1,1,2,3),y=c(3,5,3,4))
+ggplot(df, aes(x,y)) + geom_line(color="red") +geom_point(color="red")
+AA<-ggplot(df, aes(x,y)) + geom_area()+ geom_line(color="red")+geom_point(color="red")
+summary(AA)
+ggplot(economics, aes(date, uempmed)) +geom_ribbon(aes(ymin=uempmed-10,ymax=uempmed+10))+ geom_line(color="red")
+ggplot(economics, aes(date, uempmed)) +geom_ribbon(aes(ymin=5,ymax=5-uempmed))+ geom_line(color="red")  ###음....
+ggplot(economics, aes(unemploy/pop, uempmed)) + geom_path() +geom_polygon()
+ggplot(economics, aes(date, uempmed)) + geom_smooth()
+
+
+#####################
+#tile   :data point를 중심으로 같은 크기의 상ㅈ
+#raster :x,y 축을 쪼개고
+
+#nudge_x 띄워줘라 
+ggplot(df, aes(x,y)) +geom_point(color="red") + geom_text(aes(label=c("a","b","c","d")))
+ggplot(df, aes(x,y)) +geom_point(color="red") + geom_text(aes(label=c("a","b","c","d")), nudge_x=0.1)
+ggplot(df, aes(x,y)) +geom_point(color="red") + geom_text(aes(label=c("a","b","c","d")), nudge_y=0.1)
+
+p<- ggplot(df, aes(x,y)) +geom_point(aes(color="a"))
+p+ labs(x= "x axis", y = "y axis", colour= "colour \n legend")
+p+ scale_x_continuous(name= "X AXIS") +
+  scale_y_continuous(name= "Y AXIS") + 
+  scale_colour_discrete(name="COLOUR \n LEGEND")
+df$z<-letters[1:4]
+ggplot(df, aes(y,y))+ 
+  geom_point(size=4, color="black", show.legend = TRUE)+
+  geom_point(aes(color=z), size=3)+
+  theme(legend.position = "bottom")
+
+
+##############################
+?order
+
+(ii <- order(x <- c(1,1,3:1,1:4,3), y <- c(9,9:1), z <- c(2,1:9)))
+## 6  5  2  1  7  4 10  8  3  9
+rbind(x, y, z)[,ii] # shows the reordering (ties via 2nd & 3rd arg)
+
+order(x)
+
+## Suppose we wanted descending order on y.
+## A simple solution for numeric 'y' is
+rbind(x, y, z)[, order(x, -y, z)]
+## More generally we can make use of xtfrm
+cy <- as.character(y)
+rbind(x, y, z)[, order(x, -xtfrm(cy), z)]
+## The radix sort supports multiple 'decreasing' values:
+rbind(x, y, z)[, order(x, cy, z, decreasing = c(FALSE, TRUE, FALSE),
+                       method="radix")]
+
+## Sorting data frames:
+dd <- transform(data.frame(x, y, z),
+                z = factor(z, labels = LETTERS[9:1]))
+## Either as above {for factor 'z' : using internal coding}:
+dd[ order(x, -y, z), ]
+## or along 1st column, ties along 2nd, ... *arbitrary* no.{columns}:
+dd[ do.call(order, dd), ]
