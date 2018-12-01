@@ -1,0 +1,124 @@
+##############
+# 10 월 18일 
+##############
+# 물어볼거 : gain 의미
+
+# 라이브러리
+library(tidyverse)
+library(nycflights13)
+
+# 데이터
+# rm(list=ls())
+ls(pos = 2)
+flights
+#?flights
+
+# filter() : 조건에 맞는 행을 뽑음
+# 1월 1일, 1월 2일만 뽑음
+filter(flights, month == 1, day <= 2) 
+filter(flights, month == 1, day == 1, dep_time < 600) # 6시 이전에 출발
+
+A <- filter(flights, month == 1, day == 1, dep_time < 600)
+
+# 수치 연산의 비교
+# near
+sqrt(2)
+sqrt(2)^2
+sqrt(2)^2 == 2
+near(sqrt(2)^2, 2)
+
+1/49 * 49 == 1
+near(1/49 * 49, 1)
+# near() 오차범위 내에서 같게 만들어줌
+# Compare two numeric vectors
+# This is a safe way of comparing if two vectors of floating point numbers are (pairwise) equal. This is safer than using ==, because it has a built in tolerance
+
+1/49 * 49 - 1 == 0 
+(1/49 * 49 - 1) == 0 
+(1/49 * 49) == 1
+round(1/49*49 -1, 9)
+round(1/49*49 -1, 9) == 0
+?round
+# knitr::include_graphics("diagrams/transform-logical.png")
+
+filter(flights, month == 11 | month == 12)
+filter(flights, month %in% c(11, 12))  # 지정한 vector 값 안에 있는 값
+nov_dec <- filter(flights, month %in% c(11, 12))  # 11, 12월 데이터만 뽑아냈음
+
+
+# Missing value
+a <- 1
+NA > 5; 10 == NA; NA + 10 ; NA / 2; NA == NA  # 결측치 연산은 모두 결측치
+
+x = c(1, NA, 3)
+is.na(x); !is.na(x)
+
+df <- tibble(x = c(1, NA, 3))
+df
+filter(df, x > 1)  
+filter(df, x > 1 | is.na(x))
+filter(df, x > 1, is.na(x)) # 동시에 만족하는 행이 없기 때문에 0 x 1
+
+# arrange()
+# 지정한 변수의 크기 순으로 자료를 정렬하기
+arrange(flights, year, month, day)
+arrange(flights, dep_delay)
+arrange(flights, desc(dep_delay))  # 내림차순
+arrange(flights, desc(day), month)
+
+df <- tibble(x = c(5, 2, NA))  # NA 값은 항상 마지막 순서로 정렬
+df
+arrange(df)  
+arrange(df, x)
+arrange(df, desc(x))
+
+# select()
+# starts_with("abc"): “abc”로 시작하는 이름의 변수 선택
+# ends_with("xyz"): “xyz”로 끝나는 이름의 변수 선택.
+# contains("ijk"): “ijk”가 들어있는 이름의 변수 선택.
+# num_range("x", 1:3): x1, x2, x3 선택
+
+flights
+select(flights, year, month, day)
+select(flights, year, day, month)
+select(flights, year:arr_time)
+select(flights, year:month)
+select(flights, -(year:month))
+select(flights, -(year:arr_delay))
+select(flights, starts_with("dep"))
+select(flights, ends_with("time"))
+select(flights, contains("arr"))
+select(flights, contains("arr_"))
+
+# rename
+# 변수 이름 바꾸기
+head(flights)
+rename(flights, tail_num = tailnum)
+flights <- rename(flights, tail_num = tailnum)
+head(flights)
+# View(flights)
+
+# everything() : 나머지 모든 변수를 의미
+select(flights, time_hour, everything()) # time_hour 제일 앞으로 나옴
+
+# mutate() : 새로운 변수를 만들어 기존 자료에 추가
+df
+df$y <- LETTERS[1:3]  # "A","B","C" 를 y 변수 안에 저장
+df
+
+flights_sml <- select(flights, year:day, ends_with("delay"), distance, air_time)
+flights_sml %>% mutate(gain = arr_delay - dep_delay,  
+                       hours = air_time/60,
+                       gain_per_hour = gain/hours)
+
+A <- mutate(flights_sml, 
+            gain = arr_delay - dep_delay, #### 예정비행시간 보다 순수 지연된 시간??
+            hours = air_time/60,          # 비행시간
+            gain_per_hour = gain/hours)   # 시간당 얼마나 늦어졌는가
+A
+
+# transmute() : 새로 만든 변수만을 가지는 자료를 만듦
+transmute(flights_sml,
+            gain = arr_delay - dep_delay,  
+            hours = air_time/60, 
+            gain_per_hour = gain/hours)

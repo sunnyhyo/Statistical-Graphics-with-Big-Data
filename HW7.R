@@ -1,0 +1,42 @@
+library(stringr)
+library(tidyverse)
+library(nycflights13)
+
+names(who)
+
+## 1. who 자료를 아래의 기준에 따라 tidy data로 변형하여 whoTidy에 저장하시오.
+## - type: TB type으로 변수이름의 두 번째 부분 (sp, rel, sn, ep)
+## - gender: 성별
+## - ageL, ageU: age group의 하한과 상한을 의미하며 65세 이상 그룹에서는 ageU를 80으로 함
+## - age: ageL과 ageU의 평균 값
+## 
+who1 <- who %>%
+  gather(code, value, new_sp_m014:newrel_f65, na.rm = TRUE) %>%
+  mutate(code = stringr::str_replace(code, "newrel", "new_rel")) %>%
+  separate(code, c("new", "type", "sexage")) %>%
+  select(-new, -iso2, -iso3) %>%
+  separate(sexage, c("gender", "age"), sep = 1) 
+
+who1$age <- plyr::revalue(who1$age, replace = c("65" = "6580"))
+who2 <- who1 %>% separate(age, c("ageL", "ageU"), sep = -2)  
+who2$ageL <- as.numeric(who2$ageL)
+who2$ageU <- as.numeric(who2$ageU)
+
+whoTidy <- who2 %>% mutate(age = (ageL+ageU)/2) %>% 
+  select(country, year, type, gender, ageL, age, ageU, value )
+
+head(whoTidy)
+tail(whoTidy)
+
+
+
+## 2. 1에서 만든 whoTidy 자료중 2006~2010년 자료만을 이용하여 각 나라별, type 별로 TB 수의 평균을
+## 구하고 각 type별로 구한 평균값이 가장 큰 나라를 찾으시오.
+
+### 2006 ~ 2010 년 자료만을 이용하여 각 나라별, type별로 TB 의 평균 구하기
+whoTidy2 <- whoTidy %>% filter(year %in% c(2006:2010)) %>% 
+  group_by(country, type) %>% summarise(meanTB = mean(value)) 
+whoTidy2
+
+### 각 type별로 구한 평균값이 가장 큰 나라 : India
+whoTidy2 %>% group_by(type) %>% filter(meanTB == max(meanTB))

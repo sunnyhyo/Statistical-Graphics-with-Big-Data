@@ -1,0 +1,46 @@
+library(tidyverse)
+library(stringr)
+
+
+# 1. 각 자료를 tibble data 로 만드시오.
+T1 <- tibble(A = rep(c("A","B","C"), each = 2),
+             B = rep(c(1,2), time = 3),
+             C = seq(10, 60, by = 10),
+             D = seq(100, 600, by = 100)); T1
+
+T2 <- tibble(A = rep(LETTERS[1:3], each = 4),
+             B = rep(1:2, time =3, each = 2),
+             C = rep(LETTERS[3:4], length = 12),
+             D = c(10,100)*rep(1:6, each = 2)); T2
+
+T3 <- tibble(A = rep(LETTERS[1:3], each = 2),
+             B = rep(1:2, time = 3),
+             E = paste(10*1:6, 100*1:6, sep = "-") ); T3
+
+T41 <- tibble(A = rep(LETTERS[1:3]),
+             `1` = seq(10, 50, by = 20),
+             `2`  = seq(20, 60, by = 20)); T41
+
+T42 <- tibble(A = rep(LETTERS[1:3]),
+              `1` = seq(100, 500, by = 200),
+              `2`  = seq(200, 600, by = 200)); T42
+
+# 2. T1 은 tidy data 인가? 
+# 그렇다. T1은 다음의 조건을 만족하기 때문이다.
+# 1. 각 변수는 개별의 열(column)으로 존재한다.
+# 2. 각 관측치는 행(row)를 구성한다.
+# 3. 각 테이블은 단 하나의 관측기준에 의해서 조직된 데이터를 저장한다.
+
+# 3. T41과 T42를 이용하여 T1의 형태를 만드시오.
+tidy41 <- T41 %>% 
+  gather(`1`,`2`, key = "B", value = "C")
+tidy42 <- T42 %>% 
+  gather(`1`,`2`, key = "B", value = "D")
+left_join(tidy41, tidy42)
+
+# 4. T2를 T1의 형태로 만드시오.
+spread(T2, key = C, value = D)
+
+# 5. T3을 T1의 형태로 만드시오.
+T3 %>%
+  separate(E, into = c("C", "D"), sep = "-", convert = TRUE)
