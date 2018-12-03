@@ -28,22 +28,24 @@ popular_dest %>%             # mean(data[조건문]) :평균   # 목적지별 (�
 ##########################################################
 # 각 그룹에서 최하위 찾기 
 # 일별로 도착연착이 큰 순서대로 top10
-flights %>% group_by(year, month, day) %>%   # 날짜별로 
+flights %>% group_by(year, month, day) %>%   # 날짜별로
   filter(rank(desc(arr_delay)) <= 10 )       # 도착지연시간이 큰것부터 순서대로 top 10 비행
 
 flights %>% group_by(year, month, day) %>%   # 날짜별로 
-  filter(rank(desc(arr_delay)) < 10)         # 도착지연시간이 큰 순서대로 top9      
+  filter(rank(desc(arr_delay)) <= 5) %>%     # 도착지연시간이 큰 순서대로 top5
+  print(n = 15)
 
+# filter는 select 안해줘도 출력된다.
 # 운항건수가 365회 이상인 목적지로 간 운항만 추출하기
-flights %>% group_by(dest) %>% 
-  filter( n() > 365 ) %>% 
+flights %>% group_by(dest) %>%        
+  filter( n() > 365 ) %>%
   select(year:day, dest, everything())
 flights %>% group_by(dest) %>% 
   filter( n() > 365 ) %>% summarise(n= n()) %>% arrange(desc(n))
 
 # 목적지별 운항 건수가 많은 것부터 정렬
-flights %>% group_by(dest) %>% 
-  mutate( n = n() ) %>% arrange(desc(n)) %>% 
+flights %>% group_by(dest) %>%
+  mutate( n = n() ) %>% arrange(desc(n)) %>%
   select(year:day, dest, n, everything())
 
 # flights 자료에서 목적지별로 365 회 이상 운항한 data 를 popular_dest
@@ -57,13 +59,15 @@ popular_dest %>% filter(arr_delay > 0) %>%
 
 popular_dest %>% summarise(a = sum(arr_delay))  # NA 가 있는데 arregate 하면 결측
 popular_dest %>% summarise(a = sum(arr_delay, na.rm = TRUE))  # NA 제외 후 계산
+
 popular_dest %>% filter(arr_delay > 0) %>%                # NA 는 제외된다
   mutate(prop_delay = arr_delay / sum(arr_delay)) %>%     # 여기서는 왜 na.rm  =TRUE 안하는지? 아 하네
   select(year, month, day, dest, arr_delay, prop_delay)
+
 flights %>% summarise(a = sum(arr_delay, na.rm = TRUE))
+
 11/30046
 11/2257174
-
 # 각 그룹마다 새로운 변수 생성하기
 A <- popular_dest %>%         # 목적지별로 
   filter(arr_delay > 0) %>%   # 실제로 도착이 지연된 운항
@@ -72,9 +76,13 @@ A <- popular_dest %>%         # 목적지별로
 A
 A %>% summarise(n = sum(arr_delay, na.rm = TRUE))   # 목적지별로 지연시간 총합
 
+class(A)
 class(flights)
-class(popular_dest)   # 그룹화된 tdf
+class(popular_dest)   # 그룹화된 data frame
 
+
+y <- data.frame(x = c(1,2,NA))
+y %>% filter(x > 1)
 
 ##################
 # tibble, readr, and tidyr
@@ -105,12 +113,12 @@ iris.tb <- as_tibble(iris)
 # Printing
 # - data frame 모든 자료를 보여줌
 # - tibble : 처음 10 줄과 화면에 맞는 만큼의 변수만을 보여주며 변수의 type 도 함께 보여줌
-A <- tibble( a = lubridate::now() + runif(1000)*86400,
-             b = lubridate::today() + runif(1000)*30,
+A <- tibble( a = lubridate::now() + runif(1000)*86400,  # <dttm>  
+             b = lubridate::today() + runif(1000)*30,   # <date>  
              c = 1:1000,
-             d = runif(1000),
-             e = sample(letters, 1000, replace = TRUE))
-A             
+             d = runif(1000),    # random number of uniform distribution. n = 1000, min = 0, max = 1
+             e = sample(letters, 1000, replace = TRUE))  # should sampling be with replacement? 복원추출
+A        
 
 lubridate::now()    # 현재 시각
 lubridate::today()  # 오늘 날짜
@@ -118,6 +126,9 @@ lubridate::today()  # 오늘 날짜
 sample(letters); sample(LETTERS)
 86400/60     #초 -> 분
 86400/60/60  #초 -> 분 -> 시간
+
+540%/%100   # 몫 (시간)
+540%%100    # 나머지 (분)
 
 # n, width 옵션을 이용하여 자료 전체를 볼 수 있음
 # defualt print option 을 바꿀 수도 있음
@@ -132,8 +143,8 @@ flights %>% print(n = 5, width = Inf)  # width = Inf 모든 변수 인쇄
 
 summary(lm(Sepal.Length ~ Sepal.Width, data =iris))
 summary(iris)
-print(iris)
-print(iris.tb)
+# print(iris)
+# print(iris.tb)
 
 # tribble() : SAS 의 cards 문과 같은 형태의 자료 입력도 허용
 # Create tibbles using an easier to read row-by-row layout.
@@ -143,36 +154,58 @@ tribble(
   "a", 2, 3.6,
   "b", 1, 8.5
 )
-tribble(~x,~y,~z,#--/--/--"a",2,3.6,"b",1,8.5))
-)   # row by row
 
-tribble(~x,~y,~z,#--/--/--
-        "a",2,3.6,"b",1,8.5) 
-tribble(~x,~y,~z,
-        "a",2,3.6,"b",1,8.5) 
+tribble(~x,~y,~z, #--/--/-- "a",2,3.6,"b",1,8.5))
+)   # A tibble: 0 x 3
 
+tribble(~x,~y,~z, #--/--/--
+        "a",2,3.6,"b",1,8.5) 
+tribble(~x,~y,~z,"a",2,3.6,"b",1,8.5) 
+
+
+# tibble()
 df <- tibble(x = runif(5), 
              y = runif(5))
 df
 
+# Subsetting
+# data frame 과 동일한 번법 이용 가능
 # tibble 일 때 출력되는 형식
-set.seed(20181101)
+set.seed(20181101)           # 고정
 df <- tibble(x = runif(5), 
              y = runif(5))
 df
-df$x
-df[['x']]
-df[,'x']
+
+
+# Extract by name
+df$x       # $  vector
+df[['x']]  # [[]]  열을 vector 로 뽑는다
+
+# Extract by position
+# Often what we will require is just the vector representing the values in the variable. 
+# This is achieved using a different sort of indexing that uses double square brackets,
+df[[2]]
+
+# If a single index is specified when subsetting a data frame with single square brackets, 
+# the effect is to extract the appropriate columns of the data frame and all rows are returned.
+df[1]
+df[1]
+
+#When subsetting using square brackets, 
+# it is possible to leave the row or column index completely empty. 
+# The result is that all rows or all columns, respectively, are returned. 
+df[,'x']   # [, 'x']
 
 # data frame 일 때 출력되는 형식
 df1 <- data.frame(x = runif(5), 
                   y = runif(5))
-df1
-df1$x
-df1[['x']]
-df1[,"x"]
-df1[,c('x','y')]
-df1[,'x',drop = FALSE]
+df1         # 소수점 8 자리수
+df1$x       # vector 로 출력
+df1[['x']]  # vector 로 출력
+df1[,'x']   # vector 로 출력 "numeric"
+df1[,1]     # vector 로 출력
+df1[,c('x','y')]          # data frame 으로 출력
+df1[,'x', drop = FALSE]   # data frame 으로 출력
 
 df.tbl <- tibble( xx = runif(5), 
                   y = runif(5))
@@ -181,7 +214,8 @@ df.DF <- data.frame( xx = runif(5),
 df.tbl
 df.DF
 
-df.DF$xx
+df.tbl$x   # tibble 변수가 없으면 안뽑아줌
+df.DF$x    # data frame x 와 유사한 변수 불러옴
 df.DF$xx
 df.tbl$xx
 as.data.frame(df.tbl)

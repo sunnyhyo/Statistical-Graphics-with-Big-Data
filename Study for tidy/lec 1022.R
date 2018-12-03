@@ -7,15 +7,15 @@ library(tidyverse)
 library(nycflights13)
 
 flights
-
+# 이 자료에서 특이한 것, dep_time, arr_time 시간분
 # useful creation functions
 # • Arithmetic operators: +, -, *, /, ^.
 # • Modular arithmetic
 # – %/% (integer division)
 # – %% (remainder), x == y * (x %/% y) + (x %% y)
 
-32 %/% 3
-32 %% 3
+32 %/% 3  # 몫
+32 %% 3   # 나머지
 x == y * (x %/% y) + (x %% y)
 
 transmute(flights, 
@@ -98,12 +98,12 @@ summarise(flights,
 # flight 자료를 연, 월, 일로 그룹화를 한 뒤에 (각 날짜마다) delay 시간의 평균
 # group_by() 와 summarise() 함께 사용할 경우 유용
 by_day <- group_by(flights, year, month, day);head(by_day)  # 365 개의 그룹
-AA <- summarize(by_day,
+AA <- summarize(by_day,     # 각 날짜별로 summarise
                 delay = mean(dep_delay, na.rm = TRUE));AA
 # day 별 평균....[?]: day = row 수. group_by 변수와 새 변수
 # group의미가 없어진다.
 
 # AA 자료를 ???이건 왜 이렇게 되는 거지?
-summarize(AA, 
+summarize(AA,       # 각 월별로 summarise
           delay1 = mean(delay, na.rm=TRUE))
 # month 별로 delay 평균. day 라는 정보 없어짐.. 
