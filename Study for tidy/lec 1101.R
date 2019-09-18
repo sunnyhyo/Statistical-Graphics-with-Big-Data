@@ -98,6 +98,7 @@ head(iris)
 as_tibble(iris)
 
 # tibble() 을 이용하여 만들기
+
 # data frame 과의 차이점 
 # - character 가 factor 로 바뀌지 않음
 # - R 에서 허용하지 않는 형태의 변수 이름 가능 
@@ -110,6 +111,24 @@ tb
 tb$`:)`
 iris.tb <- as_tibble(iris)
 
+# tribble() : SAS 의 cards 문과 같은 형태의 자료 입력도 허용
+# Create tibbles using an easier to read row-by-row layout.
+tribble(
+  ~x, ~y, ~z,
+  #--/--/--
+  "a", 2, 3.6,
+  "b", 1, 8.5
+)
+
+tribble(~x,~y,~z, #--/--/-- "a",2,3.6,"b",1,8.5))
+)   # A tibble: 0 x 3
+
+tribble(~x,~y,~z, #--/--/--
+        "a",2,3.6,"b",1,8.5) 
+tribble(~x,~y,~z,"a",2,3.6,"b",1,8.5) 
+
+
+######################################
 # Printing
 # - data frame 모든 자료를 보여줌
 # - tibble : 처음 10 줄과 화면에 맞는 만큼의 변수만을 보여주며 변수의 type 도 함께 보여줌
@@ -130,13 +149,14 @@ sample(letters); sample(LETTERS)
 540%/%100   # 몫 (시간)
 540%%100    # 나머지 (분)
 
+
 # n, width 옵션을 이용하여 자료 전체를 볼 수 있음
 # defualt print option 을 바꿀 수도 있음
-# - options(tibble.print_max = n, tibble.print_min = m) :
-# 자료가 m 줄 이상인 경우 처음 n 줄만을 인쇄
+# - options(tibble.print_max = n, tibble.print_min = m) : 자료가 m 줄 이상인 경우 처음 n 줄만을 인쇄
 # - options(dplyr.print_min = Inf) : 항상 모든 자료를 인쇄
 # - options(tibble.width = Inf) : 항상 모든 변수를 인쇄
 # - View() : 자료 전체를 보여줌
+
 print(A)
 print(A, n = 20)                       # n = Inf     모든 행 인쇄
 flights %>% print(n = 5, width = Inf)  # width = Inf 모든 변수 인쇄
@@ -146,30 +166,16 @@ summary(iris)
 # print(iris)
 # print(iris.tb)
 
-# tribble() : SAS 의 cards 문과 같은 형태의 자료 입력도 허용
-# Create tibbles using an easier to read row-by-row layout.
-tribble(
-  ~x, ~y, ~z,
-  #--/--/--
-  "a", 2, 3.6,
-  "b", 1, 8.5
-)
-
-tribble(~x,~y,~z, #--/--/-- "a",2,3.6,"b",1,8.5))
-)   # A tibble: 0 x 3
-
-tribble(~x,~y,~z, #--/--/--
-        "a",2,3.6,"b",1,8.5) 
-tribble(~x,~y,~z,"a",2,3.6,"b",1,8.5) 
-
 
 # tibble()
 df <- tibble(x = runif(5), 
              y = runif(5))
 df
 
+
+###########################
 # Subsetting
-# data frame 과 동일한 번법 이용 가능
+# data frame 과 동일한 방법 이용 가능
 # tibble 일 때 출력되는 형식
 set.seed(20181101)           # 고정
 df <- tibble(x = runif(5), 
@@ -220,3 +226,7 @@ df.DF$xx
 df.tbl$xx
 as.data.frame(df.tbl)
 
+# partial matching 은 불가능 (data frame 에서는 가능).
+
+# as.dataframe() : tibble 을 data frame 으로 바꾸기 
+class(as.data.frame(df.tbl))

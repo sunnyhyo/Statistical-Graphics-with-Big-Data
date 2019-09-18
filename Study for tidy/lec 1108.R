@@ -7,6 +7,9 @@ library(readr)
 library(tidyverse)
 library(nycflights13)
 
+
+##################
+# Other strategies
 # 모든 자료를 character 로 읽은 후 col_type 지정
 # col(): Create column specification  강제로 자료 형태 지정
 # .default: 디폴트로 자료 형태 지정 Any named columns not explicitly overridden in ... will be read with this column type.
@@ -28,37 +31,44 @@ tail(challenge3)
 #####################
 # Writing to a file
 # write_csv() 와 write_tsv()
-# - string 은 UTF-8 로 encoding
-
+# – string 은 UTF-8 로 encoding
+# – date, date-time 은 ISO8601 format 으로 저장.
+# write_excel_csv(): excel 파일로 저장
+# – 파일의 시작 부분에 UTF-8 로 encoding 을 하고 있다는 것을 excel 에 알려주는 특별 문자(“byte order mark”)를 써줌
 getwd()
 write_csv(challenge3, "ch.csv")
+# csv 로 저장할 때에는 type 에 대한 정보는 잃어버림
 read_csv("ch.csv")
 
+
+# write_rds()와 read_rds()를 이용.
+# – R 의 기본함수인 saveRDS()와 readRDS()에 해당
+# – binary format 으로 저장
 write_rds(challenge3, "ch.rds")  # 정보손실 x
 A <- read_rds("ch.rds")
 A
 
 #####################
-# 드디어 나왔다 Tidy
+# 드디어 나왔다 Tidy data
 # dataset 을 tidy 하게 만들기 위한 3 가지의 기본 규칙
 # - 각 변수는 각자의 column 을 가지고 있어야 한다.
 # - 각 observation 은 각자의 row 를 가지고 있어야 한다.
 # - 각 값은 각자의 cell 을 가지고 있어야 한다.
 
 # Tidy 자료 
-# 각 변수는 각자의 column을 가지고 있어야 한다
-# 각 observation은 각각의 row를 가지고 있어야 한다
-# 각 값은 각자의 cell 을 가지고 있어야 한다
+# 1. 각 변수는 각자의 column을 가지고 있어야 한다
+# 2. 각 observation은 각각의 row를 가지고 있어야 한다
+# 3. 각 값은 각자의 cell 을 가지고 있어야 한다
 
 # Tidy 자료의 장점
-# 자료를 저장하는데에 일관된 방법을 제공하고 이후 작업을 위한 도구들을 이에 맞춰 개발하므로 배우기 쉽다
-# 변수를 column 으로 놓는 것은 특히 유용하다 
+# 1. 자료를 저장하는데에 일관된 방법을 제공하고 이후 작업을 위한 도구들을 이에 맞춰 개발하므로 배우기 쉽다
+# 2. 변수를 column 으로 놓는 것은 특히 유용하다 
 # R의 내장된 함수들은 vector를 기본으로 하고 있으므로 tidy data 를 vector 로 변환하는 것이 유용
 
 
 table1     # tidy data O
 table2     # tidy data 아님   - 하나의 observation 이 두 2 rows에 있음. 각 나라, 연도별로 type, count 한 행을 두행으로 표현
-table3     # tidy data 아님   - 하나의 column 에 두 2 variables의 값을 가지고 있음
+table3     # tidy data 아님   - 하나의 column 에 두 2 variables의 값을 가지고 있음. 한줄에 나타나있긴 하지만 한칸에 두개 
 table4a    # tidy data 아님   - year 이라는 variables가  여러2columns에 걸쳐져 있음
 table4b    # tidy data 아님   - t4a, t4b 두개의 table 로 저장되어 있음 
 
@@ -67,6 +77,7 @@ table4b    # tidy data 아님   - t4a, t4b 두개의 table 로 저장되어 있�
 # tidy 데이터는 자료를 다루기 쉽다. 별다른 전처리 없이 rate 계산 가능
 table1 %>% mutate(rate = cases/population*10000)  
 table1 %>% count(year)
+# Compute cases per year
 table1 %>% count(year, wt = cases)
 745+37737+212258
 2666+80488+213766
@@ -74,23 +85,34 @@ table1 %>% count(year, wt = cases)
 table1 %>% ggplot(aes(year, cases)) +
   geom_line(aes(group = country)) + 
   geom_point(aes(color = country))
+# Visualise changes over time
 table1 %>% mutate(rate = cases/population*10000) %>% 
   ggplot(aes(year, rate, group = country)) + 
   geom_point() + geom_line()
 
+###############################
 ## Spreading and gathering
 # 대부분의 자료는 모아지기 편리한 형태로 구성되어 있으므로
 # 분석하기 편한 tidy 형태로 만드는 작업이 필요
 # 1. 하나의 변수들을 multiple column 에 표현해야될 수 있다 -> tidy : gather
 # 2. 하나의 관측을 여러 줄에 표현해야 할 수 있다 -> tidy : spread
 
+
+####################
 # gathering
 # Gather takes multiple columns and collapses into key-value pairs, duplicating all other columns as needed. 
 # You use gather() when you notice that you have columns that are not variables.
 
 # year 변수가 2 columns 에 걸쳐져 입력되어 있음
 # tidy 가 되기 위해서 한 column 에 한 variable
-# 모을 변수 명을 지정하고, key ="YEAR" 로 모은다. 기존 값은 value = "CASES" 로 모은다
+
+# tidy 자료로 만들기 위해서 column 을 새로운 변수의 pair 로 만들어야함. 이를
+# gathering 이라고 함.
+# 이를 위하여 3 가지의 인자를 지정하는 것이 필요.
+# 1. 값을 나타내는 column 의 이름; table4a 에서는 1999 와 2000
+# 2. column 의 이름에 나타난 값을 위한 변수 이름 (key); ‘year’
+# 3. column 에서 가지고 있는 값을 저장하기 위한 변수 이름 (value);‘cases’
+
 gather(table4a, `1999`, `2000`, key = "YEAR", value = "CASES") # 변수명이 year 라는 새 변수명의 값으로 들어가야해
 A <- gather(table4a, `1999`, `2000`, key = "YEAR", value = "CASES")
 B <- gather(table4a, `1999`, `2000`, key = "YEAR", value = "POPULATION")
@@ -98,14 +120,25 @@ A
 B
 left_join(A, B)
 
-# spread
+####################
+# spreading
+# spreading 은 gathering 의 반대로 observation 이 여러줄에 나타날 때 이용
 # Spread a key-value pair across multiple columns. obs가 여러 줄에 나타났을 때! 
+
 spread
 # 한가지 관측이 3 rows 에 입력되어 있음. 
 # tidy 가 되기 위해서 한 row 에 한 variable
+# 위의 자료를 tidy 자료로 바꾸기 위해서는 두가지의 인자가 필요.
+# 1. 변수 이름이 저장되어 있는 key column: 여기서는 type
+# 2. 변수의 값이 저장되어 있는 value column: 여기서는 value
+
 table2
 spread(table2, key = type, value = count)  # key = "새로운 변수명", value = 값
 
+
+###########################
+# Separateing and Uniting
+# table3 의 “하나의 column 에 두변수의 값”을 가지고 있는 문제를 separate()과 unite()을 이용하여 해결
 # Separate - character
 # 하나의 column 에 두 변수의 값을 가지고 있는 문제를 seperate() 와 unite() 로 구분
 separate
@@ -120,8 +153,16 @@ separate(table3, rate, into = c("cases", "population"), sep = 2, convert = TRUE)
 table5 <- separate(table3, year, into = c("century", "year"), sep = 2) # convert = TRUE
 table5
 
+
+####################
 # uniting
+# unite(): 여러개의 column 을 하나의 column 으로 합쳐줌.
+
+# unite()에서는 두번째 인자부터 나열된 변수들의 값을 “_“를 이용하여 연결한 후 첫번째
+# 인자에 지정된 값의 변수에 저장한다.
 table5 %>% unite(new, century, year)
+
+# sep 옵션을 이용하여 연결문자 지정
 table5 %>% unite(new, century, year, sep = "")   # sep = 연결 문자 지정. 여전히 char로 읽는다
 # table5 %>% unite(new, century, year, sep = "", convert = TRUE) # convert 옵션 없어
 # Error: `TRUE` must evaluate to column positions or names, not a logical vector
@@ -133,26 +174,37 @@ table5 %>% unite(new, century, year, sep = "")   # sep = 연결 문자 지정. �
 
 
 ###################
+# Missing values
 # Missing 의 종류
-# 2015년 qtr4 자료 = explictly missing 
-# 2016년 qtr1 자료 = implicit missing
-# spread 사용하여 implicit missing 을 explictly missing 으로 만들어준다
+# - explicitly missing: 자료는 있으나 파악되지 못하여 NA 로 표시
+# – implicitly missing: 자료가 존재하지 않는 경우
 stocks <- tibble(year = c(2015,2015,2015,2015,2016,2016,2016),
                  qtr = c(1,2,3,4,2,3,4),
                  return = c(1.88,0.59,0.35,NA,0.92,0.17,2.66))
 stocks
-stocks %>% spread(year, return)   # 한가지 변수를 
-stocks %>% spread(year, return) %>% gather(year, return, `2015`, `2016`)
+
+# 2015년 qtr4 자료 = explictly missing 
+# 2016년 qtr1 자료 = implicit missing
+# spread 사용하여 implicit missing 을 explictly missing 으로 만들어준다
+stocks %>% spread(year, return)   
+
+# spread 와 gather 동시에 사용해서 missing 모두 드러낸다
+stocks %>% spread(year, return) %>% 
+  gather(year, return, `2015`, `2016`)
+# explicit missing 을 제거하고 싶은 경우에는 na.rm=TRUE 옵션을 이용
+stocks %>% spread(year, return) %>% 
+  gather(year, return, `2015`, `2016`, na.rm = TRUE)
+
 
 # gather()과 spread()는 대칭적인 함수인가
 # (gather 와 spread 를 거치면 같은 자료가 되는가)?  안된다!!!!!
 # 처음의 stocks 에서 변수들은 모두 double, 그러나 spread, gather 을 거친 후에는
 # spread 에서 변수 이름으로 쓰인 year 가 character 로 바뀜.
 
-
+####################
 # complete
-# Turns implicit missing values into explicit missing values.
-# 모든 unique pair 을 만들어준다!
+# complete() 함수를 이용하여 implicit missing 을 exlicit missing 으로 변환.
+# complete(): 모든 unique combination 을 찾아서 만들어줌. missing 은 NA 로 채우기.
 stocks %>% complete(year, qtr) 
 
 treatment<-tribble(    # row - by -row 는 tribble
@@ -164,7 +216,8 @@ treatment<-tribble(    # row - by -row 는 tribble
 
 treatment
 
-# fill() : missing을 LOCF  규칙에 따라 채워준
+####################
+# fill() : missing을 LOCF(Last Observation Carried Forward)규칙에 따라 채워준
 fill(treatment, person) # NA 값 채워짐
  
      

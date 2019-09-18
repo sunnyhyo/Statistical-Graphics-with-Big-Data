@@ -29,33 +29,35 @@ x
 # rank는 순위대로 정렬해주는게 아니라 순위의 색인을 나타내줍니다.missing value 도 색인 처리
 # 중복순위는 중앙값 처리, NA 중복은 순서대로
 rank(x)
-
+# 2 2 2 4.5 4.5 7 6 8 9
 # row_number() : 순위(ranking) index 반환, 동일값에 대해서는 '1, 2, 3, ...' 처리
 # 순위 중복을 observation 순서대로 순위를 매긴다. NA는 NA
 row_number(x)        # 작은 값부터 1 순위
 row_number(desc(x))  # 큰 수 부터 1순위
-
+# 1 2 3 4 5 7 6 NA NA
 # min_rank() : 순위(ranking) index 반환, 동일값에 대해서는 '1, 1, 1, 4, 4,...' 처리
 # 일반적인 내신처리
 # (공백준다) 없는 등수O. 동순위는 상위 rank, 그 다음 순위는 하위 rank 
 min_rank(x)
 min_rank(desc(x))
-
+# 1 1 1 4 4 7 6 NA NA
 # dense_rank() : 순위(ranking) index 반환, 동일값에 대해서는 '1, 1, 1, 2, 2,...' 처리
 # 올림픽순위
 # (공백안준다) 
 dense_rank(x)
 dense_rank(desc(x))
+# 1 1 1 2 2 4 3 NA NA
 
 # cume_dist() : 현재 값보다 작거나 동일한 값의 순위(ranking) 상의 비율 (0~1)
 cume_dist(x)
 3/7; 5/7; 6/7; 7/7
 cume_dist(desc(x))
+
 # dplyr::cume_dist 
 rank(x, ties.method = "max", na.last = "keep")/sum(!is.na(x))
 
 # percent_rank() : min_rank() 기준의 순위(ranking)에 대한 비율(0~1)
-# 내 위에 몇프로 있는가? 
+ # 내 위에 몇프로 있는가? 
 percent_rank(x)
 #dplyr::percent_rank 
 (min_rank(x) - 1)/(sum(!is.na(x)) - 1)
